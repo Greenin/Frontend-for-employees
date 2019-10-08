@@ -2,76 +2,65 @@ import { Component, OnInit } from '@angular/core';
 
 import { EmployeeService } from '../../services/employee.service';
 import { NgForm } from '@angular/forms';
-
 import { Employee } from '../../models/employee';
 
 declare var M: any;
 
 @Component({
-  selector: 'app-employees',
-  templateUrl: './employees.component.html',
-  styleUrls: ['./employees.component.css'],
-  providers: [EmployeeService]
+  selector: 'app-employee',
+  templateUrl: './employee.component.html',
+  styleUrls: ['./employee.component.css'],
+  providers: [ EmployeeService ]
 })
-export class EmployeesComponent implements OnInit {
+export class EmployeeComponent implements OnInit {
 
   constructor(private employeeService: EmployeeService) { }
 
   ngOnInit() {
-      this.getEmployees();
+    this.getEmployees();
   }
 
-
-  addEmployee(form: NgForm){
-    if (form.value._id){
+  addEmployee(form?: NgForm) {
+    console.log(form.value);
+    if(form.value._id) {
       this.employeeService.putEmployee(form.value)
         .subscribe(res => {
-          //console.log(res);
           this.resetForm(form);
+          this.getEmployees();
           M.toast({html: 'Updated Successfully'});
-          this.getEmployees();
-        })
-    } else {
-      //console.log(form.value);
-      this.employeeService.postEmployee(form.value)
-        .subscribe(res => {
-          //console.log(res);
-          this.resetForm(form);
-          M.toast({html: 'Save Successfully'});
-          this.getEmployees();
         });
+    } else {
+      this.employeeService.postEmployee(form.value)
+      .subscribe(res => {
+        this.getEmployees();
+        this.resetForm(form);
+        M.toast({html: 'Save successfully'});
+      });
     }
+    
   }
 
-
-  getEmployees(){
+  getEmployees() {
     this.employeeService.getEmployees()
       .subscribe(res => {
         this.employeeService.employees = res as Employee[];
-        console.log(this.employeeService.employees);
-        console.log(this.employeeService.selectedEmployee);
       });
   }
 
-
-  editEmployee(employee: Employee){
+  editEmployee(employee: Employee) {
     this.employeeService.selectedEmployee = employee;
   }
 
-
-
-  deleteEmployee(_id: string){
-    if (confirm('Are you sure you want to delete it?')) {
+  deleteEmployee(_id: string, form: NgForm) {
+    if(confirm('Are you sure you want to delete it?')) {
       this.employeeService.deleteEmployee(_id)
-      .subscribe(res => {
-        //console.log(res);
-        this.getEmployees();
-        M.toast({html: 'Deleted Successfully'})
-      });      
+        .subscribe(res => {
+          this.getEmployees();
+          this.resetForm(form);
+          M.toast({html: 'Deleted Succesfully'});
+        });
     }
   }
-
-
 
   resetForm(form?: NgForm) {
     if (form) {
